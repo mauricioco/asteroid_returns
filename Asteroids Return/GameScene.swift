@@ -14,10 +14,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var x:CGFloat = 0
     var y:CGFloat = 0
     var lastTime:CFTimeInterval = 0
+    var score = 0;
     
     let bgImage0:SKSpriteNode = SKSpriteNode(imageNamed: "background")
     let bgImage1:SKSpriteNode = SKSpriteNode(imageNamed: "background")
     let sprite = SKSpriteNode(imageNamed:"Spaceship")
+    let scoreLabel:SKLabelNode = SKLabelNode(fontNamed:"Arial")
     
     var boom:Bool = false
     var emitter:SKEmitterNode = SKEmitterNode();
@@ -55,6 +57,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         emitter.particleLifetimeRange = 100.0
         emitter.particleScale = 0.1
         
+        scoreLabel.text = "0";
+        scoreLabel.fontSize = 20;
+        scoreLabel.position = CGPointMake(CGRectGetMinX(self.frame)+375, CGRectGetMinY(self.frame)+16);
+        self.addChild(scoreLabel);
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
@@ -71,7 +77,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for touch: AnyObject in touches {
             let location = touch.locationInNode(self)
             if(!boom) { // movement
-                sprite.physicsBody?.velocity = CGVectorMake((location.x-x)*40, (location.y-y)*40)
+                sprite.physicsBody?.velocity = CGVectorMake((location.x-x)*50, (location.y-y)*50)
                 let action = SKAction.rotateToAngle(-atan2(location.x-x, location.y-y), duration:1)
                 sprite.runAction(action)
             }
@@ -114,6 +120,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             if(timeToBoom == 0) {
                 removeChildrenInArray([emitter])
+                score=0
+                scoreLabel.text = String(score)
             }
             if(timeToBoom < 0 && timeToBoom >= -20) {
                 sprite.physicsBody!.velocity.dx=0
@@ -121,7 +129,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let action = SKAction.rotateToAngle(CGFloat(2 * M_PI), duration:1)
                 sprite.runAction(action)
                 sprite.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame))
-
+                
             }
             if(timeToBoom == -20) {
                 addChild(sprite)
@@ -138,6 +146,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sprite.alpha = 1.0
                 timeToBoom = 100
             }
+        }else{
+            score += 1;
+            scoreLabel.text = String(score)
         }
         
         // Add asteroid
